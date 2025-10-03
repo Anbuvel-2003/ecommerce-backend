@@ -1,5 +1,5 @@
 // controllers/brandController.js
-import Brand from "../models/Brand.js";
+import Brand from "../model/Brand.js";
 
 // Create brand
 export const createBrand = async (req, res) => {
