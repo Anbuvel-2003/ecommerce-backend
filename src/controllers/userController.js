@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../model/UserModel.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 // ======================= REGISTER =======================
 export const registerUser = async (req, res) => {
@@ -13,15 +15,12 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = new User({
       email,
       mobilenumber,
-      password: hashedPassword,
+      password,
       firstname,
-      lastname,
+      lastname
     });
 
     await user.save();
@@ -32,31 +31,42 @@ export const registerUser = async (req, res) => {
 };
 
 // ======================= LOGIN =======================
+
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // 1️⃣ Find user by email
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user || user.isdelete || !user.isactive) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    // 2️⃣ Compare password using schema method
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
 
-    const token = jwt.sign(
-      { userid: user.userid, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    // 3️⃣ Generate JWT using schema method
+    const token = user.generateJWT();
 
-    user.token = token;
+    // 4️⃣ Update last login
     user.lastlogin = new Date();
     await user.save();
 
-    res.status(200).json({ message: "Login successful", token, user });
+    // 5️⃣ Return response without sensitive fields
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: user.toJSON(),
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 // ======================= CREATE USER (ADMIN) =======================
 export const createUser = async (req, res) => {

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
 
 // User Schema
 const UserSchema = new mongoose.Schema(
@@ -9,7 +10,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
-      default: () => new mongoose.Types.ObjectId().toString(),
+      default: () => uuidv4(),
     },
     email: {
       type: String,
@@ -79,14 +80,14 @@ UserSchema.pre("save", async function (next) {
 });
 
 // ✅ Compare password
-UserSchema.methods.isValidPassword = async function (password) {
+UserSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
 // ✅ Generate JWT
 UserSchema.methods.generateJWT = function () {
   const payload = { userid: this.userid, email: this.email, role: this.role };
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 // Hide sensitive fields in JSON response
