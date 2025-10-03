@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/UserRoute.js";
 import addressRoutes from "./routes/AddressRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import brandRoutes from "./routes/brandRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 import connectDB from "./config/db.js";
 
 dotenv.config();
@@ -19,6 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/addresses", addressRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/products', productRoutes);
 
 // frontend routes
 app.get("/", (req, res) => {

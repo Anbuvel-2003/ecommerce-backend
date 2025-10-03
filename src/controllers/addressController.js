@@ -6,18 +6,17 @@ import User from "../model/UserModel.js";
 // Add new address
 export const addAddress = async (req, res) => {
   try {
-    const { userid, firstname, lastname, mobilenumber, houseno, street, city, state, country, pincode } = req.body;
-
     // Check if user exists
+       const { userid } = req.params; 
     const user = await User.findOne({ userid });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found",success: false });
 
     const address = new Address(req.body);
     await address.save();
 
-    res.status(201).json({ message: "Address added successfully", address });
+    res.status(201).json({ message: "Address added successfully", address,success: true });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.messag,success: false });
   }
 };
 
@@ -25,9 +24,14 @@ export const addAddress = async (req, res) => {
 export const getUserAddresses = async (req, res) => {
   try {
     const addresses = await Address.find({ userid: req.params.userid, isactive: true });
-    res.status(200).json(addresses);
+    res.status(200).json({
+      message: "Addresses retrieved successfully",
+      count: addresses.length,
+      success: true,
+      addresses,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message,success: false });
   }
 };
 
@@ -35,10 +39,14 @@ export const getUserAddresses = async (req, res) => {
 export const getAddressById = async (req, res) => {
   try {
     const address = await Address.findOne({ addressid: req.params.addressid });
-    if (!address) return res.status(404).json({ message: "Address not found" });
-    res.status(200).json(address);
+    if (!address) return res.status(404).json({ message: "Address not found",success: false });
+    res.status(200).json({
+      message: "Address retrieved successfully",
+      success: true,
+      address,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message ,success: false});
   }
 };
 
@@ -50,11 +58,11 @@ export const updateAddress = async (req, res) => {
       req.body,
       { new: true }
     );
-    if (!updatedAddress) return res.status(404).json({ message: "Address not found" });
+    if (!updatedAddress) return res.status(404).json({ message: "Address not found", success: false });
 
-    res.status(200).json({ message: "Address updated", address: updatedAddress });
+    res.status(200).json({ message: "Address updated", address: updatedAddress, success: true});
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message, success: false });
   }
 };
 
@@ -66,10 +74,10 @@ export const deleteAddress = async (req, res) => {
       { isactive: false },
       { new: true }
     );
-    if (!address) return res.status(404).json({ message: "Address not found" });
+    if (!address) return res.status(404).json({ message: "Address not found", success: false });
 
-    res.status(200).json({ message: "Address deleted (soft)", address });
+    res.status(200).json({ message: "Address deleted successfully", address, success: true });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message, success: false });
   }
 };
