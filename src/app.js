@@ -6,6 +6,10 @@ import addressRoutes from "./routes/AddressRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import stockRoutes from "./routes/stockRoutes.js";
+import warehouseRoutes from "./routes/warehouseRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
 import connectDB from "./config/db.js";
 
 dotenv.config();
@@ -25,6 +29,10 @@ app.use("/api/addresses", addressRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/stock', stockRoutes);
+app.use('/api/warehouses', warehouseRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes );
 
 // frontend routes
 app.get("/", (req, res) => {
